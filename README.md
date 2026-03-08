@@ -2,8 +2,6 @@
 
 A high-performance tool that extracts plain text from Wikipedia XML dump files.
 
-wikiext is a Rust reimplementation of [wikiextractor](https://github.com/attardi/wikiextractor), offering significantly faster processing through parallel execution and efficient streaming.
-
 ## Features
 
 - Streaming XML parsing that handles multi-gigabyte dumps without loading them into memory
