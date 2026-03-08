@@ -1,0 +1,23 @@
+[book]
+authors = ["Minoru Osuka"]
+language = "en"
+src = "src"
+title = "wikiext Documentation"
+description = "Documentation for wikiext - a high-performance Wikipedia dump text extractor in Rust"
+
+[build]
+build-dir = "../target/docs/en"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/mosuka/wext"
+edit-url-template = "https://github.com/mosuka/wext/edit/main/docs/{path}"
+no-section-label = false
+
+[output.html.fold]
+enable = true
+level = 1
+
+[output.html.search]
+enable = true

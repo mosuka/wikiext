@@ -1,0 +1,241 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    name: Format
+    strategy:
+      matrix:
+        platform:
+          - runner: ubuntu-latest
+        toolchain: [stable]
+    runs-on: ${{ matrix.platform.runner }}
+    steps:
+      - name: Run checkout
+        uses: actions/checkout@v6
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          components: rustfmt, clippy
+
+      - name: Run format
+        run: cargo fmt --all -- --check
+
+      - name: Run clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+  test:
+    name: Test
+    needs: [format]
+    strategy:
+      matrix:
+        platform:
+          - runner: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+          - runner: macos-latest
+            target: aarch64-apple-darwin
+          - runner: macos-15-intel
+            target: x86_64-apple-darwin
+          - runner: windows-latest
+            target: x86_64-pc-windows-msvc
+          - runner: windows-latest
+            target: aarch64-pc-windows-msvc
+            skip_test_run: true
+        toolchain: [stable]
+    runs-on: ${{ matrix.platform.runner }}
+    steps:
+      - name: Run checkout
+        uses: actions/checkout@v6
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          target: ${{ matrix.platform.target }}
+          components: rustfmt, clippy
+
+      - name: Cache Cargo
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-${{ matrix.platform.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run test
+        shell: bash
+        run: |
+          if [ "${{ matrix.platform.skip_test_run }}" == "true" ]; then
+            cargo check --target "${{ matrix.platform.target }}" --all-features
+          else
+            cargo test --target "${{ matrix.platform.target }}" --all-features
+          fi
+
+  create-release:
+    name: Create Release
+    needs: [test]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          make_latest: true
+
+  release:
+    name: Build
+    needs: [test, create-release]
+    if: startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      matrix:
+        platform:
+          - runner: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            archive: .zip
+            extension: ""
+          - runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            archive: .zip
+            extension: ""
+          - runner: macos-latest
+            target: aarch64-apple-darwin
+            archive: .zip
+            extension: ""
+          - runner: macos-15-intel
+            target: x86_64-apple-darwin
+            archive: .zip
+            extension: ""
+          - runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            archive: .zip
+            extension: .exe
+          - runner: windows-latest
+            target: aarch64-pc-windows-msvc
+            archive: .zip
+            extension: .exe
+        toolchain: [stable]
+    runs-on: ${{ matrix.platform.runner }}
+    steps:
+      - name: Run checkout
+        uses: actions/checkout@v6
+
+      - name: Cache ~/.cargo/registry
+        uses: actions/cache@v5
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-${{ matrix.platform.target }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache ~/.cargo/git
+        uses: actions/cache@v5
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-${{ matrix.platform.target }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache target
+        uses: actions/cache@v5
+        with:
+          path: target
+          key: ${{ runner.os }}-${{ matrix.platform.target }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          target: ${{ matrix.platform.target }}
+
+      - name: Add msbuild to PATH
+        if: matrix.platform.runner == 'windows-latest'
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Compile
+        run: cargo build --release --target=${{ matrix.platform.target }}
+
+      - name: Create artifact for Linux
+        if: runner.os == 'Linux'
+        run: zip --junk-paths wikiext-${{ matrix.platform.target }}-${{ github.ref_name }}${{ matrix.platform.archive }} target/${{ matrix.platform.target }}/release/wikiext${{ matrix.platform.extension }}
+
+      - name: Create artifact for Windows
+        if: runner.os == 'Windows'
+        run: powershell Compress-Archive -DestinationPath wikiext-${{ matrix.platform.target }}-${{ github.ref_name }}${{ matrix.platform.archive }} -Path target/${{ matrix.platform.target }}/release/wikiext${{ matrix.platform.extension }}
+
+      - name: Create artifact for OSX
+        if: runner.os == 'macOS'
+        run: zip --junk-paths wikiext-${{ matrix.platform.target }}-${{ github.ref_name }}${{ matrix.platform.archive }} target/${{ matrix.platform.target }}/release/wikiext${{ matrix.platform.extension }}
+
+      - name: Upload artifact
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: wikiext-${{ matrix.platform.target }}-${{ github.ref_name }}${{ matrix.platform.archive }}
+          tag_name: ${{ github.ref_name }}
+
+  publish-crates:
+    name: Publish crate
+    needs: [release]
+    if: startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      matrix:
+        platform:
+          - runner: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+        toolchain: [stable]
+    runs-on: ${{ matrix.platform.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          components: rustfmt, clippy
+
+      - name: Publish wikiext
+        run: |
+          WIKIEXT_VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="wikiext") | .version')
+          WIKIEXT_VERSIONS=$(curl -s -XGET https://crates.io/api/v1/crates/wikiext | jq -r 'select(.versions != null) | .versions[].num' 2>/dev/null)
+          if echo "${WIKIEXT_VERSIONS}" | tr ' ' '\n' | grep -qFx "${WIKIEXT_VERSION}"; then
+            echo "wikiext ${WIKIEXT_VERSION} has already been published"
+          else
+            pushd wikiext
+            cargo publish
+            popd
+          fi
+          sleep 20
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_TOKEN }}
+
+      - name: Publish wikiext-cli
+        run: |
+          WIKIEXT_CLI_VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="wikiext-cli") | .version')
+          WIKIEXT_CLI_VERSIONS=$(curl -s -XGET https://crates.io/api/v1/crates/wikiext-cli | jq -r 'select(.versions != null) | .versions[].num' 2>/dev/null)
+          if echo "${WIKIEXT_CLI_VERSIONS}" | tr ' ' '\n' | grep -qFx "${WIKIEXT_CLI_VERSION}"; then
+            echo "wikiext-cli ${WIKIEXT_CLI_VERSION} has already been published"
+          else
+            pushd wikiext-cli
+            cargo publish
+            popd
+          fi
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_TOKEN }}

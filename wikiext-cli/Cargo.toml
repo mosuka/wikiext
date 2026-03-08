@@ -1,0 +1,19 @@
+[package]
+name = "wikiext-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "CLI tool to extract plain text from Wikipedia XML dumps"
+
+[[bin]]
+name = "wikiext"
+path = "src/main.rs"
+
+[dependencies]
+wikiext.workspace = true
+clap.workspace = true
+env_logger.workspace = true
+log.workspace = true
+rayon.workspace = true
+bzip2.workspace = true
+anyhow.workspace = true

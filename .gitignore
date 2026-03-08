@@ -1,0 +1,14 @@
+target/
+
+.vscode
+.idea
+.DS_Store
+
+.claude
+.serena
+.mcp.json
+AGENTS.md
+CLAUDE.md
+.github/copilot-instructions.md
+
+.tmp
