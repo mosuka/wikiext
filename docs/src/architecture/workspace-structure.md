@@ -1,6 +1,6 @@
 # Workspace Structure
 
-wikiext is organized as a **Cargo workspace** with two crates and supporting directories.
+wicket is organized as a **Cargo workspace** with two crates and supporting directories.
 
 ## Directory Layout
 
@@ -10,7 +10,7 @@ wext/
 ├── Cargo.lock              # Dependency lock file
 ├── LICENSE                 # MIT OR Apache-2.0
 ├── README.md               # Project overview
-├── wikiext/                # Core library crate
+├── wicket/                # Core library crate
 │   ├── Cargo.toml
 │   └── src/
 │       ├── lib.rs          # Module declarations and re-exports
@@ -19,7 +19,7 @@ wext/
 │       ├── extractor.rs    # Output formatting (doc/JSON)
 │       ├── output.rs       # File splitting and rotation
 │       └── error.rs        # Error types
-├── wikiext-cli/            # CLI binary crate
+├── wicket-cli/            # CLI binary crate
 │   ├── Cargo.toml
 │   └── src/
 │       └── main.rs         # CLI entry point
@@ -39,7 +39,7 @@ wext/
 
 ## Crate Details
 
-### `wikiext` (Core Library)
+### `wicket` (Core Library)
 
 The core library provides streaming XML parsing, wikitext cleaning, output formatting, and file splitting.
 
@@ -55,9 +55,9 @@ The core library provides streaming XML parsing, wikitext cleaning, output forma
 | `thiserror` | 2.0 | Error type derivation |
 | `log` | 0.4 | Logging facade |
 
-### `wikiext-cli` (CLI Binary)
+### `wicket-cli` (CLI Binary)
 
-The CLI provides a command-line interface to wikiext's functionality.
+The CLI provides a command-line interface to wicket's functionality.
 
 | Dependency | Version | Purpose |
 | ----- | ----- | ----- |
@@ -66,7 +66,7 @@ The CLI provides a command-line interface to wikiext's functionality.
 | `bzip2` | 0.6 | Compressed output support |
 | `env_logger` | 0.11 | Logging output |
 | `anyhow` | 1.0 | Error handling in binary |
-| `wikiext` | 0.1 | Core library (workspace member) |
+| `wicket` | 0.1 | Core library (workspace member) |
 
 ## Workspace Configuration
 
@@ -75,7 +75,7 @@ The workspace uses Cargo resolver version 3 (Rust Edition 2024):
 ```toml
 [workspace]
 resolver = "3"
-members = ["wikiext", "wikiext-cli"]
+members = ["wicket", "wicket-cli"]
 
 [workspace.package]
 version = "0.1.0"

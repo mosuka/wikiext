@@ -15,7 +15,7 @@ wget https://dumps.wikimedia.org/simplewiki/latest/simplewiki-latest-pages-artic
 Wikipedia ダンプからプレーンテキストを抽出:
 
 ```sh
-wikiext simplewiki-latest-pages-articles.xml.bz2 -o output/
+wicket simplewiki-latest-pages-articles.xml.bz2 -o output/
 ```
 
 ダンプを読み込み、メイン名前空間の全記事からプレーンテキストを抽出し、doc フォーマットで `output/` ディレクトリに出力します。ファイルは 1 MB ごとに分割されます。
@@ -23,13 +23,13 @@ wikiext simplewiki-latest-pages-articles.xml.bz2 -o output/
 ### JSON 出力
 
 ```sh
-wikiext simplewiki-latest-pages-articles.xml.bz2 -o output/ --json
+wicket simplewiki-latest-pages-articles.xml.bz2 -o output/ --json
 ```
 
 ### 標準出力に書き出し
 
 ```sh
-wikiext simplewiki-latest-pages-articles.xml.bz2 -o - -q | head -50
+wicket simplewiki-latest-pages-articles.xml.bz2 -o - -q | head -50
 ```
 
 ## ライブラリ クイックスタート
@@ -37,7 +37,7 @@ wikiext simplewiki-latest-pages-articles.xml.bz2 -o - -q | head -50
 ダンプを開いて記事を処理する最小限の Rust プログラム:
 
 ```rust
-use wikiext::{open_dump, clean_wikitext, format_page, make_url, OutputFormat};
+use wicket::{open_dump, clean_wikitext, format_page, make_url, OutputFormat};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let reader = open_dump("simplewiki-latest-pages-articles.xml.bz2".as_ref(), &[0])?;
@@ -59,5 +59,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## 次のステップ
 
-- [CLI リファレンス](../wikiext-cli.md) -- 全 CLI オプション
-- [アーキテクチャ](../architecture/overview.md) -- wikiext の内部構造
+- [CLI リファレンス](../wicket-cli.md) -- 全 CLI オプション
+- [アーキテクチャ](../architecture/overview.md) -- wicket の内部構造

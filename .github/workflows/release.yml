@@ -172,22 +172,22 @@ jobs:
 
       - name: Create artifact for Linux
         if: runner.os == 'Linux'
-        run: zip --junk-paths wikiext-${{ matrix.platform.target }}-${{ github.ref_name }}${{ matrix.platform.archive }} target/${{ matrix.platform.target }}/release/wikiext${{ matrix.platform.extension }}
+        run: zip --junk-paths wicket-${{ matrix.platform.target }}-${{ github.ref_name }}${{ matrix.platform.archive }} target/${{ matrix.platform.target }}/release/wicket${{ matrix.platform.extension }}
 
       - name: Create artifact for Windows
         if: runner.os == 'Windows'
-        run: powershell Compress-Archive -DestinationPath wikiext-${{ matrix.platform.target }}-${{ github.ref_name }}${{ matrix.platform.archive }} -Path target/${{ matrix.platform.target }}/release/wikiext${{ matrix.platform.extension }}
+        run: powershell Compress-Archive -DestinationPath wicket-${{ matrix.platform.target }}-${{ github.ref_name }}${{ matrix.platform.archive }} -Path target/${{ matrix.platform.target }}/release/wicket${{ matrix.platform.extension }}
 
       - name: Create artifact for OSX
         if: runner.os == 'macOS'
-        run: zip --junk-paths wikiext-${{ matrix.platform.target }}-${{ github.ref_name }}${{ matrix.platform.archive }} target/${{ matrix.platform.target }}/release/wikiext${{ matrix.platform.extension }}
+        run: zip --junk-paths wicket-${{ matrix.platform.target }}-${{ github.ref_name }}${{ matrix.platform.archive }} target/${{ matrix.platform.target }}/release/wicket${{ matrix.platform.extension }}
 
       - name: Upload artifact
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: wikiext-${{ matrix.platform.target }}-${{ github.ref_name }}${{ matrix.platform.archive }}
+          files: wicket-${{ matrix.platform.target }}-${{ github.ref_name }}${{ matrix.platform.archive }}
           tag_name: ${{ github.ref_name }}
 
   publish-crates:
@@ -211,14 +211,14 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           components: rustfmt, clippy
 
-      - name: Publish wikiext
+      - name: Publish wicket
         run: |
-          WIKIEXT_VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="wikiext") | .version')
-          WIKIEXT_VERSIONS=$(curl -s -XGET https://crates.io/api/v1/crates/wikiext | jq -r 'select(.versions != null) | .versions[].num' 2>/dev/null)
-          if echo "${WIKIEXT_VERSIONS}" | tr ' ' '\n' | grep -qFx "${WIKIEXT_VERSION}"; then
-            echo "wikiext ${WIKIEXT_VERSION} has already been published"
+          WICKET_VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="wicket") | .version')
+          WICKET_VERSIONS=$(curl -s -XGET https://crates.io/api/v1/crates/wicket | jq -r 'select(.versions != null) | .versions[].num' 2>/dev/null)
+          if echo "${WICKET_VERSIONS}" | tr ' ' '\n' | grep -qFx "${WICKET_VERSION}"; then
+            echo "wicket ${WICKET_VERSION} has already been published"
           else
-            pushd wikiext
+            pushd wicket
             cargo publish
             popd
           fi
@@ -226,14 +226,14 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_TOKEN }}
 
-      - name: Publish wikiext-cli
+      - name: Publish wicket-cli
         run: |
-          WIKIEXT_CLI_VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="wikiext-cli") | .version')
-          WIKIEXT_CLI_VERSIONS=$(curl -s -XGET https://crates.io/api/v1/crates/wikiext-cli | jq -r 'select(.versions != null) | .versions[].num' 2>/dev/null)
-          if echo "${WIKIEXT_CLI_VERSIONS}" | tr ' ' '\n' | grep -qFx "${WIKIEXT_CLI_VERSION}"; then
-            echo "wikiext-cli ${WIKIEXT_CLI_VERSION} has already been published"
+          WICKET_CLI_VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="wicket-cli") | .version')
+          WICKET_CLI_VERSIONS=$(curl -s -XGET https://crates.io/api/v1/crates/wicket-cli | jq -r 'select(.versions != null) | .versions[].num' 2>/dev/null)
+          if echo "${WICKET_CLI_VERSIONS}" | tr ' ' '\n' | grep -qFx "${WICKET_CLI_VERSION}"; then
+            echo "wicket-cli ${WICKET_CLI_VERSION} has already been published"
           else
-            pushd wikiext-cli
+            pushd wicket-cli
             cargo publish
             popd
           fi

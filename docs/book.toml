@@ -2,8 +2,8 @@
 authors = ["Minoru Osuka"]
 language = "en"
 src = "src"
-title = "wikiext Documentation"
-description = "Documentation for wikiext - a high-performance Wikipedia dump text extractor in Rust"
+title = "wicket Documentation"
+description = "Documentation for wicket - a high-performance Wikipedia dump text extractor in Rust"
 
 [build]
 build-dir = "../target/docs/en"

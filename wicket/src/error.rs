@@ -22,5 +22,5 @@ pub enum Error {
     Json(#[from] serde_json::Error),
 }
 
-/// Result type alias for wikiext operations.
+/// Result type alias for wicket operations.
 pub type Result<T> = std::result::Result<T, Error>;

@@ -15,20 +15,20 @@
   - [Module Design](architecture/module-design.md)
   - [Data Flow](architecture/data-flow.md)
 
-# wikiext (Library)
+# wicket (Library)
 
-- [Library Overview](wikiext.md)
-  - [dump](wikiext/dump.md)
-  - [cleaner](wikiext/cleaner.md)
-  - [extractor](wikiext/extractor.md)
-  - [output](wikiext/output.md)
-  - [error](wikiext/error.md)
+- [Library Overview](wicket.md)
+  - [dump](wicket/dump.md)
+  - [cleaner](wicket/cleaner.md)
+  - [extractor](wicket/extractor.md)
+  - [output](wicket/output.md)
+  - [error](wicket/error.md)
 
-# wikiext-cli (CLI)
+# wicket-cli (CLI)
 
-- [CLI Overview](wikiext-cli.md)
-  - [Options](wikiext-cli/options.md)
-  - [Examples](wikiext-cli/examples.md)
+- [CLI Overview](wicket-cli.md)
+  - [Options](wicket-cli/options.md)
+  - [Examples](wicket-cli/examples.md)
 
 # Reference
 

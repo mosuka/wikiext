@@ -1,6 +1,6 @@
 # Data Flow
 
-This page describes how data flows through wikiext from input to output.
+This page describes how data flows through wicket from input to output.
 
 ## Processing Pipeline
 
@@ -64,7 +64,7 @@ Formatted strings are written sequentially to the `OutputSplitter`, which:
 
 ## Parallelization Strategy
 
-wikiext uses a batch-based parallelization approach rather than a pipeline with channels:
+wicket uses a batch-based parallelization approach rather than a pipeline with channels:
 
 1. The main thread reads articles from the `DumpReader` in batches of 1000
 2. Each batch is processed in parallel using `rayon::par_iter()`

@@ -37,7 +37,7 @@ jobs:
           <html>
           <head>
             <meta charset="utf-8">
-            <title>wikiext Documentation</title>
+            <title>wicket Documentation</title>
             <meta http-equiv="refresh" content="0; url=en/">
             <style>
               body { font-family: sans-serif; text-align: center; padding: 2rem; }
@@ -45,7 +45,7 @@ jobs:
             </style>
           </head>
           <body>
-            <h1>wikiext Documentation</h1>
+            <h1>wicket Documentation</h1>
             <p>
               <a href="en/">English</a> |
               <a href="ja/">日本語</a>

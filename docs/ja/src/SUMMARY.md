@@ -15,20 +15,20 @@
   - [モジュール設計](architecture/module-design.md)
   - [データフロー](architecture/data-flow.md)
 
-# wikiext (ライブラリ)
+# wicket (ライブラリ)
 
-- [ライブラリ概要](wikiext.md)
-  - [dump](wikiext/dump.md)
-  - [cleaner](wikiext/cleaner.md)
-  - [extractor](wikiext/extractor.md)
-  - [output](wikiext/output.md)
-  - [error](wikiext/error.md)
+- [ライブラリ概要](wicket.md)
+  - [dump](wicket/dump.md)
+  - [cleaner](wicket/cleaner.md)
+  - [extractor](wicket/extractor.md)
+  - [output](wicket/output.md)
+  - [error](wicket/error.md)
 
-# wikiext-cli (CLI)
+# wicket-cli (CLI)
 
-- [CLI 概要](wikiext-cli.md)
-  - [オプション](wikiext-cli/options.md)
-  - [使用例](wikiext-cli/examples.md)
+- [CLI 概要](wicket-cli.md)
+  - [オプション](wicket-cli/options.md)
+  - [使用例](wicket-cli/examples.md)
 
 # リファレンス
 

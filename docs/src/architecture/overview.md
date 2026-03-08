@@ -1,6 +1,6 @@
 # Architecture Overview
 
-wikiext is designed as a high-performance, streaming Wikipedia dump text extractor. It processes multi-gigabyte XML dumps by combining streaming I/O with batch-based parallelism.
+wicket is designed as a high-performance, streaming Wikipedia dump text extractor. It processes multi-gigabyte XML dumps by combining streaming I/O with batch-based parallelism.
 
 ## High-Level Data Flow
 
@@ -30,4 +30,4 @@ Output files (AA/wiki_00, AA/wiki_01, ...)
 - **Batch parallelism** -- CPU-bound wikitext cleaning is parallelized via rayon while I/O remains sequential
 - **wikiextractor compatibility** -- output format and directory structure match the original Python tool
 - **Fail-soft** -- malformed pages are logged and skipped rather than causing the entire process to abort
-- **Library-first** -- core functionality lives in the `wikiext` library crate; the CLI is a thin wrapper
+- **Library-first** -- core functionality lives in the `wicket` library crate; the CLI is a thin wrapper

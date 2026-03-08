@@ -3,14 +3,14 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use clap::Parser;
 use rayon::prelude::*;
-use wikiext::{
+use wicket::{
     OutputConfig, OutputFormat, OutputSplitter, clean_wikitext, format_page, open_dump,
     parse_file_size,
 };
 
 /// Extract plain text from Wikipedia XML dumps.
 #[derive(Parser)]
-#[command(name = "wikiext", version, about)]
+#[command(name = "wicket", version, about)]
 struct Cli {
     /// Input Wikipedia XML dump file (.xml or .xml.bz2)
     input: PathBuf,

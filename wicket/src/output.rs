@@ -269,7 +269,7 @@ mod tests {
 
     /// Helper to create a temporary directory for tests.
     fn test_dir(name: &str) -> PathBuf {
-        let dir = env::temp_dir().join(format!("wikiext_test_{}", name));
+        let dir = env::temp_dir().join(format!("wicket_test_{}", name));
         if dir.exists() {
             fs::remove_dir_all(&dir).unwrap();
         }

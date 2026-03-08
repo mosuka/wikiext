@@ -30,7 +30,7 @@ The cleaner handles the following MediaWiki markup elements:
 ## Usage
 
 ```rust
-use wikiext::clean_wikitext;
+use wicket::clean_wikitext;
 
 let wikitext = "'''April''' is the [[month|fourth month]] of the year.";
 let text = clean_wikitext(wikitext);

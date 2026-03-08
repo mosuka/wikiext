@@ -10,7 +10,7 @@
 ### crates.io から
 
 ```sh
-cargo install wikiext-cli
+cargo install wicket-cli
 ```
 
 ### ソースから
@@ -21,12 +21,12 @@ cd wext
 cargo build --release
 ```
 
-バイナリは `./target/release/wikiext` に生成されます。
+バイナリは `./target/release/wicket` に生成されます。
 
 インストールの確認:
 
 ```sh
-./target/release/wikiext --help
+./target/release/wicket --help
 ```
 
 ## ライブラリとして使用
@@ -35,12 +35,12 @@ cargo build --release
 
 ```toml
 [dependencies]
-wikiext = "0.1.0"
+wicket = "0.1.0"
 ```
 
 ## サポートプラットフォーム
 
-wikiext は以下のプラットフォームでテストされています:
+wicket は以下のプラットフォームでテストされています:
 
 | OS | アーキテクチャ |
 | ----- | ----- |

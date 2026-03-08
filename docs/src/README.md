@@ -1,6 +1,6 @@
 # Introduction
 
-**wikiext** is a high-performance tool that extracts plain text from Wikipedia XML dump files. It is a Rust reimplementation of [wikiextractor](https://github.com/attardi/wikiextractor), offering significantly faster processing through parallel execution and efficient streaming.
+**wicket** is a high-performance tool that extracts plain text from Wikipedia XML dump files. It is a Rust reimplementation of [wikiextractor](https://github.com/attardi/wikiextractor), offering significantly faster processing through parallel execution and efficient streaming.
 
 ## Key Features
 
@@ -29,11 +29,11 @@ April is the fourth month of the year...
 
 ## Current Version
 
-wikiext v0.1.0 -- Rust Edition 2024, minimum Rust version 1.85.
+wicket v0.1.0 -- Rust Edition 2024, minimum Rust version 1.85.
 
 ## Links
 
 - [GitHub Repository](https://github.com/mosuka/wext)
-- [crates.io](https://crates.io/crates/wikiext)
-- [API Documentation (docs.rs)](https://docs.rs/wikiext)
+- [crates.io](https://crates.io/crates/wicket)
+- [API Documentation (docs.rs)](https://docs.rs/wicket)
 - [Japanese Documentation (日本語)](../ja/)

@@ -43,7 +43,7 @@ fn escape_html(s: &str) -> String {
 /// # Examples
 ///
 /// ```
-/// use wikiext::extractor::make_url;
+/// use wicket::extractor::make_url;
 ///
 /// let url = make_url("https://ja.wikipedia.org/wiki", "東京都");
 /// assert_eq!(url, "https://ja.wikipedia.org/wiki/東京都");
@@ -131,7 +131,7 @@ pub fn format_page(
 /// # Examples
 ///
 /// ```
-/// use wikiext::extractor::parse_file_size;
+/// use wicket::extractor::parse_file_size;
 ///
 /// assert_eq!(parse_file_size("1M").unwrap(), 1048576);
 /// assert_eq!(parse_file_size("500K").unwrap(), 512000);

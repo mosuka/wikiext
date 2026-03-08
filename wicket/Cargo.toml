@@ -1,5 +1,5 @@
 [package]
-name = "wikiext"
+name = "wicket"
 version.workspace = true
 edition.workspace = true
 description.workspace = true

@@ -1,8 +1,8 @@
-# wikiext
+# wicket
 
 A high-performance tool that extracts plain text from Wikipedia XML dump files.
 
-wikiext is a Rust reimplementation of [wikiextractor](https://github.com/attardi/wikiextractor), offering significantly faster processing through parallel execution and efficient streaming.
+wicket is a Rust reimplementation of [wikiextractor](https://github.com/attardi/wikiextractor), offering significantly faster processing through parallel execution and efficient streaming.
 
 ## Features
 
@@ -18,7 +18,7 @@ wikiext is a Rust reimplementation of [wikiextractor](https://github.com/attardi
 ### From crates.io
 
 ```sh
-cargo install wikiext-cli
+cargo install wicket-cli
 ```
 
 ### From source
@@ -38,13 +38,13 @@ cargo build --release
 wget https://dumps.wikimedia.org/simplewiki/latest/simplewiki-latest-pages-articles.xml.bz2
 
 # Extract plain text
-wikiext simplewiki-latest-pages-articles.xml.bz2 -o output/
+wicket simplewiki-latest-pages-articles.xml.bz2 -o output/
 
 # JSON output
-wikiext simplewiki-latest-pages-articles.xml.bz2 -o output/ --json
+wicket simplewiki-latest-pages-articles.xml.bz2 -o output/ --json
 
 # Write to stdout
-wikiext simplewiki-latest-pages-articles.xml.bz2 -o - -q | head -50
+wicket simplewiki-latest-pages-articles.xml.bz2 -o - -q | head -50
 ```
 
 ## CLI Options
@@ -82,11 +82,11 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-wikiext = "0.1.0"
+wicket = "0.1.0"
 ```
 
 ```rust
-use wikiext::{open_dump, clean_wikitext, format_page, make_url, OutputFormat};
+use wicket::{open_dump, clean_wikitext, format_page, make_url, OutputFormat};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let reader = open_dump("dump.xml.bz2".as_ref(), &[0])?;
@@ -110,7 +110,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 - [English Documentation](https://mosuka.github.io/wext/en/)
 - [日本語ドキュメント](https://mosuka.github.io/wext/ja/)
-- [API Documentation (docs.rs)](https://docs.rs/wikiext)
+- [API Documentation (docs.rs)](https://docs.rs/wicket)
 
 ## License
 

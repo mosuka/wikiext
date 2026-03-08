@@ -1,11 +1,11 @@
 # CLI Reference Overview
 
-The `wikiext` CLI extracts plain text from Wikipedia XML dump files.
+The `wicket` CLI extracts plain text from Wikipedia XML dump files.
 
 ## Usage
 
 ```sh
-wikiext [OPTIONS] <INPUT>
+wicket [OPTIONS] <INPUT>
 ```
 
 ## Quick Reference
@@ -23,5 +23,5 @@ wikiext [OPTIONS] <INPUT>
 
 ## Detailed Documentation
 
-- [Options](wikiext-cli/options.md) -- detailed description of all CLI options
-- [Examples](wikiext-cli/examples.md) -- common usage patterns and examples
+- [Options](wicket-cli/options.md) -- detailed description of all CLI options
+- [Examples](wicket-cli/examples.md) -- common usage patterns and examples

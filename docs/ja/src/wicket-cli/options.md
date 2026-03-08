@@ -3,7 +3,7 @@
 ## 入力
 
 ```sh
-wikiext <INPUT>
+wicket <INPUT>
 ```
 
 入力ファイルは位置引数です。Wikipedia XML ダンプファイルで、非圧縮（`.xml`）または bzip2 圧縮（`.xml.bz2`）のいずれかです。圧縮はファイル拡張子で自動検出されます。
@@ -11,8 +11,8 @@ wikiext <INPUT>
 ## 出力ディレクトリ
 
 ```sh
-wikiext dump.xml.bz2 -o output/
-wikiext dump.xml.bz2 -o -
+wicket dump.xml.bz2 -o output/
+wicket dump.xml.bz2 -o -
 ```
 
 `-o, --output <PATH>` -- 出力ディレクトリを指定します。デフォルトは `text`。
@@ -23,10 +23,10 @@ wikiext dump.xml.bz2 -o -
 ## ファイルサイズ
 
 ```sh
-wikiext dump.xml.bz2 -b 500K
-wikiext dump.xml.bz2 -b 1M
-wikiext dump.xml.bz2 -b 1G
-wikiext dump.xml.bz2 -b 0
+wicket dump.xml.bz2 -b 500K
+wicket dump.xml.bz2 -b 1M
+wicket dump.xml.bz2 -b 1G
+wicket dump.xml.bz2 -b 0
 ```
 
 `-b, --bytes <SIZE>` -- 出力ファイルの最大バイト数。デフォルトは `1M`。
@@ -36,7 +36,7 @@ wikiext dump.xml.bz2 -b 0
 ## 圧縮
 
 ```sh
-wikiext dump.xml.bz2 -c
+wicket dump.xml.bz2 -c
 ```
 
 `-c, --compress` -- bzip2 で出力ファイルを圧縮。出力ファイルには `.bz2` 拡張子が付きます。
@@ -44,7 +44,7 @@ wikiext dump.xml.bz2 -c
 ## JSON 出力
 
 ```sh
-wikiext dump.xml.bz2 --json
+wicket dump.xml.bz2 --json
 ```
 
 `--json` -- デフォルトの doc フォーマットの代わりに JSON Lines フォーマット（1行1JSON オブジェクト）で出力します。
@@ -52,7 +52,7 @@ wikiext dump.xml.bz2 --json
 ## 並列ワーカー数
 
 ```sh
-wikiext dump.xml.bz2 --processes 8
+wicket dump.xml.bz2 --processes 8
 ```
 
 `--processes <N>` -- テキストクリーニングの並列ワーカー数。デフォルトは CPU コア数。
@@ -60,7 +60,7 @@ wikiext dump.xml.bz2 --processes 8
 ## 静粛モード
 
 ```sh
-wikiext dump.xml.bz2 -q
+wicket dump.xml.bz2 -q
 ```
 
 `-q, --quiet` -- stderr への進捗出力を抑制。パイプで他のコマンドに出力を渡す際に便利です。
@@ -68,8 +68,8 @@ wikiext dump.xml.bz2 -q
 ## 名前空間フィルタリング
 
 ```sh
-wikiext dump.xml.bz2 --namespaces 0
-wikiext dump.xml.bz2 --namespaces 0,1,2
+wicket dump.xml.bz2 --namespaces 0
+wicket dump.xml.bz2 --namespaces 0,1,2
 ```
 
 `--namespaces <IDS>` -- 抽出する名前空間 ID のカンマ区切りリスト。デフォルトは `0`（メイン記事のみ）。

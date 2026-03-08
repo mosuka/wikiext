@@ -1,10 +1,10 @@
 [package]
-name = "wikiext-cli"
+name = "wicket-cli"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 description.workspace = true
-documentation = "https://docs.rs/wikiext-cli"
+documentation = "https://docs.rs/wicket-cli"
 homepage.workspace = true
 repository.workspace = true
 readme.workspace = true
@@ -13,11 +13,11 @@ categories.workspace = true
 license.workspace = true
 
 [[bin]]
-name = "wikiext"
+name = "wicket"
 path = "src/main.rs"
 
 [dependencies]
-wikiext.workspace = true
+wicket.workspace = true
 clap.workspace = true
 env_logger.workspace = true
 log.workspace = true

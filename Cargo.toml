@@ -1,14 +1,14 @@
 [workspace]
-members = ["wikiext", "wikiext-cli"]
+members = ["wicket", "wicket-cli"]
 resolver = "3"
 
 [workspace.package]
-version = "0.1.1"
+version = "0.1.0"
 edition = "2024"
-description = "Wikiext is a tool for extracting and processing Wikipedia data, implemented in Rust."
-documentation = "https://docs.rs/wikiext"
-homepage = "https://github.com/mosuka/wikiext"
-repository = "https://github.com/mosuka/wikiext"
+description = "Wikipedia corpus knowledge extractor."
+documentation = "https://docs.rs/wicket"
+homepage = "https://github.com/mosuka/wicket"
+repository = "https://github.com/mosuka/wicket"
 readme = "README.md"
 keywords = ["wikipedia", "data", "extraction", "processing", "nlp"]
 categories = ["text-processing"]
@@ -16,7 +16,7 @@ license = "MIT"
 rust-version = "1.85"
 
 [workspace.dependencies]
-wikiext = { version = "0.1.1", path = "./wikiext" }
+wicket = { version = "0.1.0", path = "./wicket" }
 
 thiserror = "2.0.18"
 log = "0.4.29"

@@ -1,6 +1,6 @@
 # はじめに
 
-**wikiext** は Wikipedia XML ダンプファイルからプレーンテキストを抽出する高性能ツールです。Python 製の [wikiextractor](https://github.com/attardi/wikiextractor) を Rust で再実装し、並列処理と効率的なストリーミングにより大幅な高速化を実現しています。
+**wicket** は Wikipedia XML ダンプファイルからプレーンテキストを抽出する高性能ツールです。Python 製の [wikiextractor](https://github.com/attardi/wikiextractor) を Rust で再実装し、並列処理と効率的なストリーミングにより大幅な高速化を実現しています。
 
 ## 主な機能
 
@@ -29,11 +29,11 @@ April is the fourth month of the year...
 
 ## 現在のバージョン
 
-wikiext v0.1.0 -- Rust Edition 2024、最小 Rust バージョン 1.85。
+wicket v0.1.0 -- Rust Edition 2024、最小 Rust バージョン 1.85。
 
 ## リンク
 
 - [GitHub リポジトリ](https://github.com/mosuka/wext)
-- [crates.io](https://crates.io/crates/wikiext)
-- [API ドキュメント (docs.rs)](https://docs.rs/wikiext)
+- [crates.io](https://crates.io/crates/wicket)
+- [API ドキュメント (docs.rs)](https://docs.rs/wicket)
 - [English Documentation](../../)

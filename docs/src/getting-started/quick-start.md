@@ -15,7 +15,7 @@ wget https://dumps.wikimedia.org/simplewiki/latest/simplewiki-latest-pages-artic
 Extract plain text from a Wikipedia dump:
 
 ```sh
-wikiext simplewiki-latest-pages-articles.xml.bz2 -o output/
+wicket simplewiki-latest-pages-articles.xml.bz2 -o output/
 ```
 
 This reads the dump, extracts plain text from all main namespace articles, and writes the output to the `output/` directory in doc format, splitting files at 1 MB.
@@ -23,13 +23,13 @@ This reads the dump, extracts plain text from all main namespace articles, and w
 ### JSON Output
 
 ```sh
-wikiext simplewiki-latest-pages-articles.xml.bz2 -o output/ --json
+wicket simplewiki-latest-pages-articles.xml.bz2 -o output/ --json
 ```
 
 ### Write to stdout
 
 ```sh
-wikiext simplewiki-latest-pages-articles.xml.bz2 -o - -q | head -50
+wicket simplewiki-latest-pages-articles.xml.bz2 -o - -q | head -50
 ```
 
 ## Library Quick Start
@@ -37,7 +37,7 @@ wikiext simplewiki-latest-pages-articles.xml.bz2 -o - -q | head -50
 Here is a minimal Rust program that opens a dump and processes articles:
 
 ```rust
-use wikiext::{open_dump, clean_wikitext, format_page, make_url, OutputFormat};
+use wicket::{open_dump, clean_wikitext, format_page, make_url, OutputFormat};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let reader = open_dump("simplewiki-latest-pages-articles.xml.bz2".as_ref(), &[0])?;
@@ -59,5 +59,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## What's Next
 
-- [CLI Reference](../wikiext-cli.md) -- learn all CLI options
-- [Architecture](../architecture/overview.md) -- understand how wikiext works internally
+- [CLI Reference](../wicket-cli.md) -- learn all CLI options
+- [Architecture](../architecture/overview.md) -- understand how wicket works internally

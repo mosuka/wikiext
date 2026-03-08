@@ -1,5 +1,5 @@
-WIKIEXT_VERSION ?= $(shell cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="wikiext") | .version')
-WIKIEXT_CLI_VERSION ?= $(shell cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="wikiext-cli") | .version')
+WICKET_VERSION ?= $(shell cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="wicket") | .version')
+WICKET_CLI_VERSION ?= $(shell cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="wicket-cli") | .version')
 
 USER_AGENT ?= $(shell curl --version | head -n1 | awk '{print $1"/"$2}')
 USER ?= $(shell whoami)
@@ -27,14 +27,14 @@ build: ## Build the project
 	cargo build --release
 
 tag: ## Make a new tag for the current version
-	git tag v$(WIKIEXT_VERSION)
-	git push origin v$(WIKIEXT_VERSION)
+	git tag v$(WICKET_VERSION)
+	git push origin v$(WICKET_VERSION)
 
 publish: ## Publish the crate to crates.io
-ifeq ($(shell curl -s -XGET -H "User-Agent: $(USER_AGENT) ($(USER)@$(HOSTNAME))" https://crates.io/api/v1/crates/wikiext | jq -r 'select(.versions != null) | .versions[].num' 2>/dev/null | grep -Fx "$(WIKIEXT_VERSION)"),)
-	(cd wikiext && cargo package && cargo publish)
+ifeq ($(shell curl -s -XGET -H "User-Agent: $(USER_AGENT) ($(USER)@$(HOSTNAME))" https://crates.io/api/v1/crates/wicket | jq -r 'select(.versions != null) | .versions[].num' 2>/dev/null | grep -Fx "$(WICKET_VERSION)"),)
+	(cd wicket && cargo package && cargo publish)
 	sleep 10
 endif
-ifeq ($(shell curl -s -XGET -H "User-Agent: $(USER_AGENT) ($(USER)@$(HOSTNAME))" https://crates.io/api/v1/crates/wikiext-cli | jq -r 'select(.versions != null) | .versions[].num' 2>/dev/null | grep -Fx "$(WIKIEXT_CLI_VERSION)"),)
-	(cd wikiext-cli && cargo package && cargo publish)
+ifeq ($(shell curl -s -XGET -H "User-Agent: $(USER_AGENT) ($(USER)@$(HOSTNAME))" https://crates.io/api/v1/crates/wicket-cli | jq -r 'select(.versions != null) | .versions[].num' 2>/dev/null | grep -Fx "$(WICKET_CLI_VERSION)"),)
+	(cd wicket-cli && cargo package && cargo publish)
 endif

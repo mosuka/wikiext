@@ -1,6 +1,6 @@
 # error
 
-The `error` module defines the error types used throughout the wikiext library.
+The `error` module defines the error types used throughout the wicket library.
 
 ## Error Type
 

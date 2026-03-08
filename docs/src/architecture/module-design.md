@@ -1,6 +1,6 @@
 # Module Design
 
-The `wikiext` library crate is organized into five modules, each with a clear responsibility.
+The `wicket` library crate is organized into five modules, each with a clear responsibility.
 
 ## Module Overview
 

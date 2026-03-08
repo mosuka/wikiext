@@ -36,7 +36,7 @@ Wikipedia XML ダンプファイルを読み込み用に開きます。
 ## 使用例
 
 ```rust
-use wikiext::open_dump;
+use wicket::open_dump;
 
 let reader = open_dump("dump.xml.bz2".as_ref(), &[0])?;
 println!("URL base: {}", reader.url_base());

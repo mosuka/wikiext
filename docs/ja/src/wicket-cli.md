@@ -1,11 +1,11 @@
 # CLI リファレンス概要
 
-`wikiext` CLI は Wikipedia XML ダンプファイルからプレーンテキストを抽出します。
+`wicket` CLI は Wikipedia XML ダンプファイルからプレーンテキストを抽出します。
 
 ## 使い方
 
 ```sh
-wikiext [OPTIONS] <INPUT>
+wicket [OPTIONS] <INPUT>
 ```
 
 ## クイックリファレンス
@@ -23,5 +23,5 @@ wikiext [OPTIONS] <INPUT>
 
 ## 詳細ドキュメント
 
-- [オプション](wikiext-cli/options.md) -- 全 CLI オプションの詳細説明
-- [使用例](wikiext-cli/examples.md) -- よくある使用パターンと例
+- [オプション](wicket-cli/options.md) -- 全 CLI オプションの詳細説明
+- [使用例](wicket-cli/examples.md) -- よくある使用パターンと例

@@ -10,7 +10,7 @@
 ### From crates.io
 
 ```sh
-cargo install wikiext-cli
+cargo install wicket-cli
 ```
 
 ### From Source
@@ -21,26 +21,26 @@ cd wext
 cargo build --release
 ```
 
-The binary will be available at `./target/release/wikiext`.
+The binary will be available at `./target/release/wicket`.
 
 Verify the installation:
 
 ```sh
-./target/release/wikiext --help
+./target/release/wicket --help
 ```
 
 ## Using as a Library
 
-Add wikiext to your project's `Cargo.toml`:
+Add wicket to your project's `Cargo.toml`:
 
 ```toml
 [dependencies]
-wikiext = "0.1.0"
+wicket = "0.1.0"
 ```
 
 ## Supported Platforms
 
-wikiext is tested on the following platforms:
+wicket is tested on the following platforms:
 
 | OS | Architecture |
 | ----- | ----- |

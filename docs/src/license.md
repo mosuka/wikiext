@@ -1,6 +1,6 @@
 # License
 
-wikiext is distributed under a dual license.
+wicket is distributed under a dual license.
 
 ## MIT License
 

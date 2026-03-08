@@ -3,7 +3,7 @@
 ## Input
 
 ```sh
-wikiext <INPUT>
+wicket <INPUT>
 ```
 
 The input file is a positional argument. It must be a Wikipedia XML dump file, either uncompressed (`.xml`) or bzip2-compressed (`.xml.bz2`). Compression is detected automatically by file extension.
@@ -11,8 +11,8 @@ The input file is a positional argument. It must be a Wikipedia XML dump file, e
 ## Output Directory
 
 ```sh
-wikiext dump.xml.bz2 -o output/
-wikiext dump.xml.bz2 -o -
+wicket dump.xml.bz2 -o output/
+wicket dump.xml.bz2 -o -
 ```
 
 `-o, --output <PATH>` -- Specifies the output directory. Defaults to `text`.
@@ -23,10 +23,10 @@ wikiext dump.xml.bz2 -o -
 ## File Size
 
 ```sh
-wikiext dump.xml.bz2 -b 500K
-wikiext dump.xml.bz2 -b 1M
-wikiext dump.xml.bz2 -b 1G
-wikiext dump.xml.bz2 -b 0
+wicket dump.xml.bz2 -b 500K
+wicket dump.xml.bz2 -b 1M
+wicket dump.xml.bz2 -b 1G
+wicket dump.xml.bz2 -b 0
 ```
 
 `-b, --bytes <SIZE>` -- Maximum bytes per output file. Defaults to `1M`.
@@ -36,7 +36,7 @@ Supported suffixes: `K` (kilobytes), `M` (megabytes), `G` (gigabytes). When set 
 ## Compression
 
 ```sh
-wikiext dump.xml.bz2 -c
+wicket dump.xml.bz2 -c
 ```
 
 `-c, --compress` -- Compress output files using bzip2. Output files will have a `.bz2` extension.
@@ -44,7 +44,7 @@ wikiext dump.xml.bz2 -c
 ## JSON Output
 
 ```sh
-wikiext dump.xml.bz2 --json
+wicket dump.xml.bz2 --json
 ```
 
 `--json` -- Write output in JSON Lines format (one JSON object per line) instead of the default doc format.
@@ -52,7 +52,7 @@ wikiext dump.xml.bz2 --json
 ## Parallel Workers
 
 ```sh
-wikiext dump.xml.bz2 --processes 8
+wicket dump.xml.bz2 --processes 8
 ```
 
 `--processes <N>` -- Number of parallel workers for text cleaning. Defaults to the number of CPU cores.
@@ -60,7 +60,7 @@ wikiext dump.xml.bz2 --processes 8
 ## Quiet Mode
 
 ```sh
-wikiext dump.xml.bz2 -q
+wicket dump.xml.bz2 -q
 ```
 
 `-q, --quiet` -- Suppress progress output on stderr. Useful when piping output to another command.
@@ -68,8 +68,8 @@ wikiext dump.xml.bz2 -q
 ## Namespace Filtering
 
 ```sh
-wikiext dump.xml.bz2 --namespaces 0
-wikiext dump.xml.bz2 --namespaces 0,1,2
+wicket dump.xml.bz2 --namespaces 0
+wicket dump.xml.bz2 --namespaces 0,1,2
 ```
 
 `--namespaces <IDS>` -- Comma-separated list of namespace IDs to extract. Defaults to `0` (main articles only).

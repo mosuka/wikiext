@@ -5,13 +5,13 @@
 Extract text from a Wikipedia dump into the default `text/` directory:
 
 ```sh
-wikiext simplewiki-latest-pages-articles.xml.bz2
+wicket simplewiki-latest-pages-articles.xml.bz2
 ```
 
 ## Custom Output Directory
 
 ```sh
-wikiext dump.xml.bz2 -o output/
+wicket dump.xml.bz2 -o output/
 ```
 
 ## Write to stdout
@@ -19,13 +19,13 @@ wikiext dump.xml.bz2 -o output/
 Pipe output directly to another command:
 
 ```sh
-wikiext dump.xml.bz2 -o - -q | wc -l
+wicket dump.xml.bz2 -o - -q | wc -l
 ```
 
 ## JSON Output with Compression
 
 ```sh
-wikiext dump.xml.bz2 -o output/ --json -c
+wicket dump.xml.bz2 -o output/ --json -c
 ```
 
 ## Extract Talk Pages
@@ -33,7 +33,7 @@ wikiext dump.xml.bz2 -o output/ --json -c
 Extract namespace 1 (talk pages) with 8 workers:
 
 ```sh
-wikiext dump.xml.bz2 -o output/ --namespaces 1 --processes 8
+wicket dump.xml.bz2 -o output/ --namespaces 1 --processes 8
 ```
 
 ## Multiple Namespaces
@@ -41,7 +41,7 @@ wikiext dump.xml.bz2 -o output/ --namespaces 1 --processes 8
 Extract main articles and user pages:
 
 ```sh
-wikiext dump.xml.bz2 -o output/ --namespaces 0,2
+wicket dump.xml.bz2 -o output/ --namespaces 0,2
 ```
 
 ## Small Output Files
@@ -49,13 +49,13 @@ wikiext dump.xml.bz2 -o output/ --namespaces 0,2
 Split output into 500 KB files:
 
 ```sh
-wikiext dump.xml.bz2 -o output/ -b 500K
+wicket dump.xml.bz2 -o output/ -b 500K
 ```
 
 ## One Article per File
 
 ```sh
-wikiext dump.xml.bz2 -o output/ -b 0
+wicket dump.xml.bz2 -o output/ -b 0
 ```
 
 ## Output Directory Structure

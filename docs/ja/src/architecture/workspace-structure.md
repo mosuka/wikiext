@@ -1,6 +1,6 @@
 # ワークスペース構成
 
-wikiext は **Cargo workspace** で2つのクレートと関連ディレクトリを管理しています。
+wicket は **Cargo workspace** で2つのクレートと関連ディレクトリを管理しています。
 
 ## ディレクトリ構成
 
@@ -10,7 +10,7 @@ wext/
 ├── Cargo.lock              # 依存ロックファイル
 ├── LICENSE                 # MIT OR Apache-2.0
 ├── README.md               # プロジェクト概要
-├── wikiext/                # コアライブラリクレート
+├── wicket/                # コアライブラリクレート
 │   ├── Cargo.toml
 │   └── src/
 │       ├── lib.rs          # モジュール宣言と再エクスポート
@@ -19,7 +19,7 @@ wext/
 │       ├── extractor.rs    # 出力フォーマット (doc/JSON)
 │       ├── output.rs       # ファイル分割とローテーション
 │       └── error.rs        # エラー型
-├── wikiext-cli/            # CLI バイナリクレート
+├── wicket-cli/            # CLI バイナリクレート
 │   ├── Cargo.toml
 │   └── src/
 │       └── main.rs         # CLI エントリーポイント
@@ -39,7 +39,7 @@ wext/
 
 ## クレート詳細
 
-### `wikiext` (コアライブラリ)
+### `wicket` (コアライブラリ)
 
 ストリーミング XML パース、Wikitext クリーニング、出力フォーマット、ファイル分割を提供するコアライブラリです。
 
@@ -55,9 +55,9 @@ wext/
 | `thiserror` | 2.0 | エラー型導出 |
 | `log` | 0.4 | ログファサード |
 
-### `wikiext-cli` (CLI バイナリ)
+### `wicket-cli` (CLI バイナリ)
 
-wikiext の機能をコマンドラインインターフェースで提供します。
+wicket の機能をコマンドラインインターフェースで提供します。
 
 | 依存クレート | バージョン | 用途 |
 | ----- | ----- | ----- |
@@ -66,7 +66,7 @@ wikiext の機能をコマンドラインインターフェースで提供しま
 | `bzip2` | 0.6 | 圧縮出力サポート |
 | `env_logger` | 0.11 | ログ出力 |
 | `anyhow` | 1.0 | バイナリのエラーハンドリング |
-| `wikiext` | 0.1 | コアライブラリ（workspace メンバー） |
+| `wicket` | 0.1 | コアライブラリ（workspace メンバー） |
 
 ## ワークスペース設定
 
@@ -75,7 +75,7 @@ Cargo resolver version 3（Rust Edition 2024）を使用:
 ```toml
 [workspace]
 resolver = "3"
-members = ["wikiext", "wikiext-cli"]
+members = ["wicket", "wicket-cli"]
 
 [workspace.package]
 version = "0.1.0"
