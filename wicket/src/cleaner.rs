@@ -3,11 +3,102 @@
 /// Converts MediaWiki markup (wikitext) into plain text by parsing the wikitext
 /// into an AST using `parse_wiki_text_2` and extracting text content. Falls back
 /// to regex-based cleaning when AST parsing fails.
+///
+/// The parser is configured with both English and Japanese Wikipedia namespaces
+/// so that it can correctly handle dumps from either language edition without
+/// changing the public API.
 use std::sync::LazyLock;
 
 use log::warn;
-use parse_wiki_text_2::{Configuration, Node};
+use parse_wiki_text_2::{Configuration, ConfigurationSource, Node};
 use regex::Regex;
+
+/// Pre-built parser configuration that recognises both English and Japanese
+/// Wikipedia namespaces (Category/カテゴリ, File/Image/ファイル, REDIRECT/転送).
+static WIKI_CONFIG: LazyLock<Configuration> = LazyLock::new(|| {
+    Configuration::new(&ConfigurationSource {
+        category_namespaces: &["category", "カテゴリ"],
+        extension_tags: &[
+            "categorytree",
+            "ce",
+            "charinsert",
+            "chem",
+            "gallery",
+            "graph",
+            "hiero",
+            "imagemap",
+            "indicator",
+            "inputbox",
+            "mapframe",
+            "maplink",
+            "math",
+            "nowiki",
+            "poem",
+            "pre",
+            "ref",
+            "references",
+            "score",
+            "section",
+            "source",
+            "syntaxhighlight",
+            "templatedata",
+            "timeline",
+        ],
+        file_namespaces: &["file", "image", "ファイル"],
+        link_trail: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+        magic_words: &[
+            "DISAMBIG",
+            "FORCETOC",
+            "HIDDENCAT",
+            "INDEX",
+            "NEWSECTIONLINK",
+            "NOCC",
+            "NOCOLLABORATIONHUBTOC",
+            "NOCONTENTCONVERT",
+            "NOEDITSECTION",
+            "NOGALLERY",
+            "NOGLOBAL",
+            "NOINDEX",
+            "NONEWSECTIONLINK",
+            "NOTC",
+            "NOTITLECONVERT",
+            "NOTOC",
+            "STATICREDIRECT",
+            "TOC",
+        ],
+        protocols: &[
+            "//",
+            "bitcoin:",
+            "ftp://",
+            "ftps://",
+            "geo:",
+            "git://",
+            "gopher://",
+            "http://",
+            "https://",
+            "irc://",
+            "ircs://",
+            "magnet:",
+            "mailto:",
+            "mms://",
+            "news:",
+            "nntp://",
+            "redis://",
+            "sftp://",
+            "sip:",
+            "sips:",
+            "sms:",
+            "ssh://",
+            "svn://",
+            "tel:",
+            "telnet://",
+            "urn:",
+            "worldwind://",
+            "xmpp:",
+        ],
+        redirect_magic_words: &["REDIRECT", "転送"],
+    })
+});
 
 /// Tags whose content should be completely removed during text extraction.
 const SKIP_TAGS: &[&str] = &[
@@ -27,13 +118,13 @@ const SKIP_TAGS: &[&str] = &[
 static RE_TEMPLATE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\{\{[^{}]*\}\}").expect("invalid regex"));
 
-/// Matches `[[Category:...]]` links.
+/// Matches `[[Category:...]]` and `[[カテゴリ:...]]` links.
 static RE_CATEGORY: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\[\[Category:[^\]]*\]\]").expect("invalid regex"));
+    LazyLock::new(|| Regex::new(r"\[\[(?:Category|カテゴリ):[^\]]*\]\]").expect("invalid regex"));
 
-/// Matches `[[File:...]]` and `[[Image:...]]` links.
+/// Matches `[[File:...]]`, `[[Image:...]]`, and `[[ファイル:...]]` links.
 static RE_FILE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\[\[(?:File|Image):[^\]]*\]\]").expect("invalid regex"));
+    LazyLock::new(|| Regex::new(r"\[\[(?:File|Image|ファイル):[^\]]*\]\]").expect("invalid regex"));
 
 /// Matches `[[target|text]]` piped links and captures the display text.
 static RE_PIPED_LINK: LazyLock<Regex> =
@@ -79,6 +170,22 @@ static RE_MULTI_NEWLINE: LazyLock<Regex> =
 static RE_MULTI_SPACE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r" {2,}").expect("invalid regex"));
 
+// Post-processing patterns to catch markup remnants that survive AST/fallback cleaning.
+
+/// Matches orphaned template closing braces (`}}`) possibly preceded by parameter-like text.
+/// Catches remnants such as `amp;}}` or `|caption=text}}`.
+static RE_ORPHANED_TEMPLATE_CLOSE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"[^{]*\}\}").expect("invalid regex"));
+
+/// Matches lines that look like template parameters (`|key = value` patterns).
+static RE_TEMPLATE_PARAM_LINE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^\|[^|]*$").expect("invalid regex"));
+
+/// Matches HTML comment remnants where angle brackets were stripped
+/// (e.g., `!--comment text--`).
+static RE_COMMENT_REMNANT: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"!--.*?--").expect("invalid regex"));
+
 /// Converts wikitext markup into plain text.
 ///
 /// Parses the given wikitext using `parse_wiki_text_2` to build an AST, then
@@ -93,8 +200,7 @@ static RE_MULTI_SPACE: LazyLock<Regex> =
 ///
 /// A `String` containing the extracted plain text.
 pub fn clean_wikitext(wikitext: &str) -> String {
-    let config = Configuration::default();
-    let result = config.parse(wikitext);
+    let result = WIKI_CONFIG.parse(wikitext);
 
     match result {
         Ok(output) => {
@@ -209,13 +315,17 @@ fn extract_text_from_nodes(nodes: &[Node], output: &mut String) {
     }
 }
 
-/// Post-processes extracted text by normalizing whitespace.
+/// Post-processes extracted text by removing markup remnants and normalizing
+/// whitespace.
 ///
 /// Performs the following cleanup steps:
-/// - Trims leading and trailing whitespace from each line
-/// - Collapses consecutive spaces into a single space
-/// - Collapses three or more consecutive newlines into two (one blank line)
-/// - Trims leading and trailing whitespace from the entire result
+/// 1. Removes orphaned template closing braces (`}}`) and preceding parameter text
+/// 2. Removes lines consisting solely of template parameter syntax (`|key = value`)
+/// 3. Removes HTML comment remnants where angle brackets were already stripped
+/// 4. Trims leading and trailing whitespace from each line
+/// 5. Collapses consecutive spaces into a single space
+/// 6. Collapses three or more consecutive newlines into two (one blank line)
+/// 7. Trims leading and trailing whitespace from the entire result
 ///
 /// # Arguments
 ///
@@ -223,14 +333,22 @@ fn extract_text_from_nodes(nodes: &[Node], output: &mut String) {
 ///
 /// # Returns
 ///
-/// A `String` with normalized whitespace.
+/// A `String` with markup remnants removed and whitespace normalized.
 fn clean_text(text: &str) -> String {
-    // Trim each line and collapse spaces
+    // Remove markup remnants line by line
     let lines: Vec<String> = text
         .lines()
         .map(|line| {
             let trimmed = line.trim();
-            RE_MULTI_SPACE.replace_all(trimmed, " ").to_string()
+            // Skip lines that are purely template parameter syntax
+            if RE_TEMPLATE_PARAM_LINE.is_match(trimmed) {
+                return String::new();
+            }
+            // Remove orphaned template closing braces and preceding param text
+            let cleaned = RE_ORPHANED_TEMPLATE_CLOSE.replace_all(trimmed, "");
+            // Remove comment remnants (e.g. "!--comment--")
+            let cleaned = RE_COMMENT_REMNANT.replace_all(&cleaned, "");
+            RE_MULTI_SPACE.replace_all(cleaned.trim(), " ").to_string()
         })
         .collect();
 
@@ -563,5 +681,184 @@ mod tests {
         let input = "  Line one  \n\n\n\n  Line two  \n  Line three  ";
         let result = clean_text(input);
         assert_eq!(result, "Line one\n\nLine two\nLine three");
+    }
+
+    #[test]
+    fn test_orphaned_template_close_removal() {
+        let input = "amp;}}";
+        let result = clean_text(input);
+        assert_eq!(
+            result, "",
+            "Orphaned template close should be removed, got: {result}"
+        );
+    }
+
+    #[test]
+    fn test_template_param_line_removal() {
+        let input = "本文テキスト。\n|image5 = Example.jpg|caption5 = 説明文}}\n続きのテキスト。";
+        let result = clean_text(input);
+        assert!(
+            !result.contains("image5"),
+            "Template parameter line should be removed, got: {result}"
+        );
+        assert!(
+            result.contains("本文テキスト。"),
+            "Body text should remain, got: {result}"
+        );
+        assert!(
+            result.contains("続きのテキスト。"),
+            "Following text should remain, got: {result}"
+        );
+    }
+
+    #[test]
+    fn test_comment_remnant_removal() {
+        let input = "!--tlh:Hol--";
+        let result = clean_text(input);
+        assert_eq!(
+            result, "",
+            "Comment remnant should be removed, got: {result}"
+        );
+    }
+
+    #[test]
+    fn test_comment_remnant_inline() {
+        let input = "Visible text !--hidden comment-- more text.";
+        let result = clean_text(input);
+        assert!(
+            !result.contains("hidden comment"),
+            "Inline comment remnant should be removed, got: {result}"
+        );
+        assert!(
+            result.contains("Visible text"),
+            "Text before comment should remain, got: {result}"
+        );
+        assert!(
+            result.contains("more text."),
+            "Text after comment should remain, got: {result}"
+        );
+    }
+
+    #[test]
+    fn test_japanese_category_removal() {
+        let input = "本文テキスト。\n[[カテゴリ:日本の都市]]";
+        let result = clean_wikitext(input);
+        assert!(
+            !result.contains("カテゴリ"),
+            "Japanese category should be removed, got: {result}"
+        );
+        assert!(
+            result.contains("本文テキスト。"),
+            "Body text should remain, got: {result}"
+        );
+    }
+
+    #[test]
+    fn test_japanese_file_removal() {
+        let input = "本文テキスト。\n[[ファイル:Example.jpg|thumb|説明文]]";
+        let result = clean_wikitext(input);
+        assert!(
+            !result.contains("Example.jpg"),
+            "Japanese file link should be removed, got: {result}"
+        );
+        assert!(
+            !result.contains("ファイル"),
+            "Japanese file namespace should be removed, got: {result}"
+        );
+    }
+
+    #[test]
+    fn test_japanese_internal_link() {
+        let input = "[[東京都|東京]]は日本の首都である。";
+        let result = clean_wikitext(input);
+        assert!(
+            result.contains("東京"),
+            "Japanese link display text should be present, got: {result}"
+        );
+        assert!(
+            !result.contains("東京都"),
+            "Japanese link target should be removed when pipe is used, got: {result}"
+        );
+    }
+
+    #[test]
+    fn test_japanese_simple_link() {
+        let input = "[[大阪府]]は日本にある。";
+        let result = clean_wikitext(input);
+        assert!(
+            result.contains("大阪府"),
+            "Japanese simple link text should be present, got: {result}"
+        );
+        assert!(
+            !result.contains("[["),
+            "Link brackets should be removed, got: {result}"
+        );
+    }
+
+    #[test]
+    fn test_japanese_complex_wikitext() {
+        let input = concat!(
+            "'''日本語'''（にほんご、にっぽんご）は、",
+            "[[日本]]国内や、かつての[[大日本帝国|日本統治地域]]で使われている",
+            "[[言語]]である。",
+            "{{lang|ja|日本語}}",
+            "<!-- hidden -->",
+            "<ref>出典情報</ref>",
+            "\n[[カテゴリ:日本の言語]]",
+            "\n[[ファイル:Japanese.png|thumb|日本語]]",
+        );
+        let result = clean_wikitext(input);
+        assert!(
+            result.contains("日本語"),
+            "Title text should be present, got: {result}"
+        );
+        assert!(
+            result.contains("にほんご"),
+            "Furigana text should be present, got: {result}"
+        );
+        assert!(
+            result.contains("日本統治地域"),
+            "Piped link display text should be present, got: {result}"
+        );
+        assert!(
+            result.contains("言語"),
+            "Simple link text should be present, got: {result}"
+        );
+        assert!(
+            !result.contains("hidden"),
+            "Comment should be removed, got: {result}"
+        );
+        assert!(
+            !result.contains("出典情報"),
+            "Ref should be removed, got: {result}"
+        );
+        assert!(
+            !result.contains("カテゴリ"),
+            "Japanese category should be removed, got: {result}"
+        );
+        assert!(
+            !result.contains("ファイル"),
+            "Japanese file link should be removed, got: {result}"
+        );
+    }
+
+    #[test]
+    fn test_fallback_japanese_category_removal() {
+        let input = "テキスト。\n[[カテゴリ:テスト]]";
+        let result = fallback_clean(input);
+        assert!(
+            !result.contains("カテゴリ"),
+            "Japanese category should be removed in fallback, got: {result}"
+        );
+    }
+
+    #[test]
+    fn test_fallback_japanese_file_removal() {
+        let input = "テキスト。\n[[ファイル:Test.png|thumb|説明]]";
+        let result = fallback_clean(input);
+        assert!(
+            !result.contains("ファイル"),
+            "Japanese file should be removed in fallback, got: {result}"
+        );
     }
 }
