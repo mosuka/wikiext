@@ -1,6 +1,20 @@
 use std::fmt::Write as _;
 
+use serde::Serialize;
+
 use crate::error::Error;
+
+/// Intermediate struct used to serialize a Wikipedia page to JSON.
+///
+/// Using `#[derive(Serialize)]` and `serde_json::to_string` avoids the
+/// intermediate `serde_json::Value` allocation that `serde_json::json!` incurs.
+#[derive(Serialize)]
+struct PageJson<'a> {
+    id: &'a str,
+    url: &'a str,
+    title: &'a str,
+    text: &'a str,
+}
 
 /// Output format for extracted Wikipedia pages.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -75,11 +89,17 @@ pub fn make_url(url_base: &str, title: &str) -> String {
     let mut url = String::with_capacity(url_base.len() + 1 + title.len());
     url.push_str(url_base);
     url.push('/');
-    for ch in title.chars() {
-        if ch == ' ' {
-            url.push('_');
-        } else {
-            url.push(ch);
+    // Fast path: if the title has no spaces, append it directly without
+    // scanning character-by-character.
+    if !title.contains(' ') {
+        url.push_str(title);
+    } else {
+        for ch in title.chars() {
+            if ch == ' ' {
+                url.push('_');
+            } else {
+                url.push(ch);
+            }
         }
     }
     url
@@ -141,14 +161,16 @@ pub fn format_page(
             out
         }
         OutputFormat::Json => {
-            let obj = serde_json::json!({
-                "id": id.to_string(),
-                "url": url,
-                "title": title,
-                "text": text,
-            });
-            // serde_json::to_string should not fail for simple string values.
-            let mut json_str = serde_json::to_string(&obj).unwrap_or_default();
+            let id_str = id.to_string();
+            let page = PageJson {
+                id: &id_str,
+                url: &url,
+                title,
+                text,
+            };
+            // Using a typed struct with #[derive(Serialize)] avoids the
+            // intermediate serde_json::Value allocation that json!() incurs.
+            let mut json_str = serde_json::to_string(&page).unwrap_or_default();
             // Append the trailing newline directly instead of format!("{}\n", ...)
             // to avoid allocating a second String.
             json_str.push('\n');

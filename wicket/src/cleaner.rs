@@ -346,17 +346,34 @@ fn clean_text(text: &str) -> String {
     for line in text.lines() {
         let trimmed = line.trim();
 
-        // Skip lines that are purely template parameter syntax.
-        if RE_TEMPLATE_PARAM_LINE.is_match(trimmed) {
+        // Fast path: skip lines that are purely template parameter syntax.
+        // The regex anchors to `^|`, so a literal `|` at the start is
+        // sufficient to qualify — no need to run the full regex in that case.
+        if trimmed.starts_with('|') || RE_TEMPLATE_PARAM_LINE.is_match(trimmed) {
             blank_run += 1;
             continue;
         }
 
         // Apply inline cleanups.  replace_all returns Cow<str>, so no
         // allocation occurs when the regex finds no match in this line.
-        let s1 = RE_ORPHANED_TEMPLATE_CLOSE.replace_all(trimmed, "");
-        let s2 = RE_COMMENT_REMNANT.replace_all(&s1, "");
-        let s3 = RE_MULTI_SPACE.replace_all(s2.trim(), " ");
+        // Guard each regex with a cheap byte-search before calling replace_all
+        // so that lines without the relevant markers are skipped entirely.
+        let s1 = if trimmed.contains("}}") {
+            RE_ORPHANED_TEMPLATE_CLOSE.replace_all(trimmed, "")
+        } else {
+            std::borrow::Cow::Borrowed(trimmed)
+        };
+        let s2 = if s1.contains("!--") {
+            RE_COMMENT_REMNANT.replace_all(&s1, "")
+        } else {
+            s1
+        };
+        let s2_trimmed = s2.trim();
+        let s3 = if s2_trimmed.contains("  ") {
+            RE_MULTI_SPACE.replace_all(s2_trimmed, " ")
+        } else {
+            std::borrow::Cow::Borrowed(s2_trimmed)
+        };
         let cleaned = s3.trim();
 
         if cleaned.is_empty() {

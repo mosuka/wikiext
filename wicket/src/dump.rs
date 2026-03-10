@@ -302,17 +302,24 @@ impl<R: BufRead> Iterator for DumpReader<R> {
 /// # Errors
 ///
 /// Returns an error if the file cannot be opened or read.
+/// Buffer size for `BufReader` wrapping raw file I/O and decompressed output.
+///
+/// 256 KiB is large enough to amortise syscall overhead without occupying
+/// excessive heap memory per open dump file.
+const BUF_READER_CAPACITY: usize = 256 * 1024;
+
 pub fn open_dump(path: &Path, namespaces: &[i32]) -> Result<DumpReader<Box<dyn BufRead>>, Error> {
     let file = std::fs::File::open(path)?;
-    let buf_reader = BufReader::new(file);
+    let buf_reader = BufReader::with_capacity(BUF_READER_CAPACITY, file);
 
     let reader: Box<dyn BufRead> = if path
         .extension()
         .is_some_and(|ext| ext.eq_ignore_ascii_case("bz2"))
     {
-        Box::new(BufReader::new(bzip2::bufread::MultiBzDecoder::new(
-            buf_reader,
-        )))
+        Box::new(BufReader::with_capacity(
+            BUF_READER_CAPACITY,
+            bzip2::bufread::MultiBzDecoder::new(buf_reader),
+        ))
     } else {
         Box::new(buf_reader)
     };
