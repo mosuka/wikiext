@@ -164,20 +164,6 @@ static RE_TABLE: LazyLock<Regex> =
 
 // Post-processing patterns to catch markup remnants that survive AST/fallback cleaning.
 
-/// Matches orphaned template closing braces (`}}`) possibly preceded by parameter-like text.
-/// Catches remnants such as `amp;}}` or `|caption=text}}`.
-static RE_ORPHANED_TEMPLATE_CLOSE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"[^{]*\}\}").expect("invalid regex"));
-
-/// Matches lines that look like template parameters (`|key = value` patterns).
-static RE_TEMPLATE_PARAM_LINE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"^\|[^|]*$").expect("invalid regex"));
-
-/// Matches HTML comment remnants where angle brackets were stripped
-/// (e.g., `!--comment text--`).
-static RE_COMMENT_REMNANT: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"!--.*?--").expect("invalid regex"));
-
 /// Converts wikitext markup into plain text.
 ///
 /// Parses the given wikitext using `parse_wiki_text_2` to build an AST, then
@@ -311,6 +297,82 @@ fn extract_text_from_nodes(nodes: &[Node], output: &mut String) {
     }
 }
 
+/// Removes HTML comment remnants (`!--...--`) from a string.
+///
+/// Reproduces the behaviour of the regex `!--.*?--` (non-greedy): each
+/// `!--` is paired with the nearest following `--` and the entire span is
+/// deleted.
+///
+/// # Arguments
+///
+/// * `s` - A string slice known to contain at least one `!--`.
+///
+/// # Returns
+///
+/// A new `String` with all comment remnants removed.
+#[inline]
+fn strip_comment_remnants(s: &str) -> String {
+    let mut result = String::with_capacity(s.len());
+    let mut rest = s;
+
+    while let Some(start) = rest.find("!--") {
+        result.push_str(&rest[..start]);
+        // Advance past `!--` and look for the closing `--`.
+        let after_open = &rest[start + 3..];
+        if let Some(end) = after_open.find("--") {
+            rest = &after_open[end + 2..];
+        } else {
+            // No closing `--`; discard the rest (matches regex behaviour).
+            return result;
+        }
+    }
+
+    result.push_str(rest);
+    result
+}
+
+/// Removes orphaned template closing sequences from a line.
+///
+/// Reproduces the behaviour of the regex `[^{]*\}\}` used in `replace_all`:
+/// every maximal run of non-`{` characters followed by `}}` is deleted.
+///
+/// # Arguments
+///
+/// * `s` - A string slice known to contain at least one `}}`.
+///
+/// # Returns
+///
+/// A new `String` with orphaned template closes removed.
+#[inline]
+fn strip_orphaned_template_close(s: &str) -> String {
+    let bytes = s.as_bytes();
+    let len = bytes.len();
+    let mut result = Vec::with_capacity(len);
+    let mut i = 0;
+
+    while i < len {
+        // Look ahead for `}}`.
+        if i + 1 < len && bytes[i] == b'}' && bytes[i + 1] == b'}' {
+            // Walk backwards through result to remove preceding non-`{` bytes.
+            while let Some(&last) = result.last() {
+                if last == b'{' {
+                    break;
+                }
+                result.pop();
+            }
+            // Skip the `}}`.
+            i += 2;
+        } else {
+            result.push(bytes[i]);
+            i += 1;
+        }
+    }
+
+    // SAFETY: We only remove ASCII bytes (`}` = 0x7D and non-`{` ASCII) from
+    // a valid UTF-8 sequence, which always yields valid UTF-8.
+    unsafe { String::from_utf8_unchecked(result) }
+}
+
 /// Collapses runs of two or more ASCII spaces into a single space.
 ///
 /// Scans the input as bytes (spaces are always `0x20` regardless of the
@@ -378,33 +440,30 @@ fn clean_text(text: &str) -> String {
     for line in text.lines() {
         let trimmed = line.trim();
 
-        // Fast path: skip lines that are purely template parameter syntax.
-        // The regex anchors to `^|`, so a literal `|` at the start is
-        // sufficient to qualify — no need to run the full regex in that case.
-        if trimmed.starts_with('|') || RE_TEMPLATE_PARAM_LINE.is_match(trimmed) {
+        // Fast path: skip lines that start with `|`.  In cleaned wikitext
+        // these are invariably template parameter remnants or table row
+        // fragments, both of which should be discarded.
+        if trimmed.starts_with('|') {
             blank_run += 1;
             continue;
         }
 
-        // Apply inline cleanups.  replace_all returns Cow<str>, so no
-        // allocation occurs when the regex finds no match in this line.
-        // Guard each regex with a cheap byte-search before calling replace_all
-        // so that lines without the relevant markers are skipped entirely.
-        let s1 = if trimmed.contains("}}") {
-            RE_ORPHANED_TEMPLATE_CLOSE.replace_all(trimmed, "")
+        // Remove orphaned template closes: strips every span of non-`{`
+        // characters followed by `}}` without DFA overhead.
+        let s1: std::borrow::Cow<str> = if trimmed.contains("}}") {
+            std::borrow::Cow::Owned(strip_orphaned_template_close(trimmed))
         } else {
             std::borrow::Cow::Borrowed(trimmed)
         };
-        let s2 = if s1.contains("!--") {
-            RE_COMMENT_REMNANT.replace_all(&s1, "")
+        // Remove HTML comment remnants (`!--...--`) without a regex engine.
+        let s2: std::borrow::Cow<str> = if s1.contains("!--") {
+            std::borrow::Cow::Owned(strip_comment_remnants(&s1))
         } else {
             s1
         };
         let s2_trimmed = s2.trim();
         let s3: std::borrow::Cow<str> = if s2_trimmed.contains("  ") {
-            // Collapse consecutive spaces without invoking a regex engine.
-            // Since spaces are single-byte ASCII, scanning bytes is both
-            // correct for any UTF-8 input and faster than the DFA approach.
+            // Collapse consecutive spaces by scanning bytes directly.
             std::borrow::Cow::Owned(collapse_spaces(s2_trimmed))
         } else {
             std::borrow::Cow::Borrowed(s2_trimmed)
