@@ -143,11 +143,21 @@ fn bench_make_url(c: &mut Criterion) {
     });
 
     group.bench_function("japanese_title", |b| {
-        b.iter(|| make_url(black_box("https://ja.wikipedia.org/wiki"), black_box("東京都")));
+        b.iter(|| {
+            make_url(
+                black_box("https://ja.wikipedia.org/wiki"),
+                black_box("東京都"),
+            )
+        });
     });
 
     group.finish();
 }
 
-criterion_group!(benches, bench_clean_wikitext, bench_format_page, bench_make_url);
+criterion_group!(
+    benches,
+    bench_clean_wikitext,
+    bench_format_page,
+    bench_make_url
+);
 criterion_main!(benches);
